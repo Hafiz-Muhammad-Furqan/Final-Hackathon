@@ -10,7 +10,7 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000;
 app.use("/auth", authRoutes);
 
 app.listen(PORT, () => {
