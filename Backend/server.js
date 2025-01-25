@@ -13,6 +13,10 @@ app.use(cors());
 const PORT = process.env.PORT || 4000;
 app.use("/auth", authRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Hello from server!");
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
