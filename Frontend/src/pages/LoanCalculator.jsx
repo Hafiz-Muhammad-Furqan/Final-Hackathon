@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const LoanCalculator = () => {
-  const { setUser } = useAuth();
+  const { setUser, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const categories = {
     Wedding: ["Venue", "Jewelry", "Clothing"],
@@ -78,35 +78,44 @@ const LoanCalculator = () => {
       setUser(userResponse.data.newUser);
       if (userResponse.status === 200) {
         localStorage.setItem("token", userResponse.data.token);
-        const loanRequestData = {
-          userId: userResponse.data.newUser._id,
-          category: selectedCategory,
-          subcategory: selectedSubcategory,
-          loanAmount,
-          downPayment,
-          loanPeriod,
-          emi: emi.monthlyInstallment,
-          processingFee: emi.processingFee,
-          totalRepayable: emi.totalRepayable,
-        };
-
-        const loanRequestResponse = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/user/loan-request`,
-          loanRequestData
-        );
-
-        if (loanRequestResponse.status === 200) {
-          toast.success("Loan request submitted successfully!");
-          setShowPopup(false);
-          navigate("/user-dashboard");
-        } else {
-          toast.error("Failed to submit loan request.");
-        }
+        await loanRequest(userResponse);
       }
       setLoading(false);
     } catch (error) {
       toast.error("Failed to submit signup or loan request.");
       console.error(error);
+    }
+  };
+
+  const loanRequest = async (userResponse) => {
+    const loanRequestData = {
+      userId: userResponse?.data?.newUser._id || user._id,
+      category: selectedCategory,
+      subcategory: selectedSubcategory,
+      loanAmount,
+      downPayment,
+      loanPeriod,
+      emi: emi.monthlyInstallment,
+      processingFee: emi.processingFee,
+      totalRepayable: emi.totalRepayable,
+    };
+
+    try {
+      const loanRequestResponse = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/user/loan-request`,
+        loanRequestData
+      );
+
+      if (loanRequestResponse.status === 200) {
+        toast.success("Loan request submitted successfully!");
+        setShowPopup(false);
+        navigate("/user-dashboard");
+      } else {
+        toast.error("Failed to submit loan request.");
+      }
+    } catch (error) {
+      toast.error("An error occurred while submitting the loan request.");
+      console.error("Loan Request Error:", error);
     }
   };
 
@@ -199,7 +208,12 @@ const LoanCalculator = () => {
           <button
             className="w-full mt-4 bg-green-600 p-2 rounded hover:bg-green-500 transition"
             onClick={() => {
-              setShowPopup(true);
+              if (localStorage.getItem("token")) {
+                loanRequest();
+                navigate("/user-dashboard");
+              } else {
+                setShowPopup(true);
+              }
             }}
           >
             Proceed to Apply

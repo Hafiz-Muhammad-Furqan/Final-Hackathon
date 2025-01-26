@@ -11,7 +11,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { setUser } = useAuth();
+  const { setUser, setIsReset } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -36,7 +36,7 @@ const Login = () => {
         }
       );
       setUser(response.data.user);
-
+      setIsReset(true);
       navigate("/user-dashboard");
     } catch (error) {
       setError(

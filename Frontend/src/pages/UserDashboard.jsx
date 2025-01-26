@@ -2,11 +2,13 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loanRequests, setLoanRequests] = useState([]);
-  const { user, setUser } = useAuth();
+
+  const { setUser, isReset } = useAuth();
 
   const userLoan = {
     amount: "200,000 PKR",
@@ -126,7 +128,13 @@ const UserDashboard = () => {
 
                   <button
                     className="p-2 rounded-lg bg-blue-900 cursor-pointer"
-                    onClick={() => navigate("/login")}
+                    onClick={() => {
+                      if (isReset) {
+                        toast.success("Loan Request Approved Successfully");
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
                   >
                     {loanRequest.status === "Pending"
                       ? "Approve Loan Request"

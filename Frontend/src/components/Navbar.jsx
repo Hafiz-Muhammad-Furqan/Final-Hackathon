@@ -9,9 +9,8 @@ const Navbar = () => {
   };
 
   const pages = [
-    { name: "Home", link: "home" },
-    { name: "Loan Categories", link: "internships" },
-    { name: "Contact", link: "about" },
+    { name: "Home", link: "/" },
+    { name: "Dashboard", link: "/user-dashboard" },
   ];
 
   return (
@@ -69,12 +68,12 @@ const Navbar = () => {
               </li>
             ))}
             <li>
-              <a
-                href="#"
+              <Link
+                to="/loan-calculator"
                 className="block md:px-3 text-white cursor-pointer rounded text-base px-10 md:p-0"
               >
                 Apply for Loan
-              </a>
+              </Link>
             </li>
             {/* Social Icons & Footer (Mobile Only) */}
             <li className="absolute flex flex-col items-start gap-2 justify-center bottom-10 md:hidden px-10">
