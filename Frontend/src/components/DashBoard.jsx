@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Overview } from "./Overview";
 import { LoanTable } from "./LoanTable";
-import showToast from "../../utils/Toast";
+import showToast from "../utils/Toast";
 import axios from "axios";
 import { LoanDetailsModal } from "./LoanDetailsModal";
 import { Link } from "react-router-dom";

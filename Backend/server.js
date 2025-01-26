@@ -9,11 +9,16 @@ const app = express();
 dotenv.config();
 connectDB();
 app.use(express.json());
-app.use(cors());
+const corsOptions = {
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization",
+};
+app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 4000;
 app.get("/", (req, res) => {
-  res.send("Hello from server!");
+  res.send("Server start!");
 });
 
 app.use("/user", userRoutes);

@@ -8,7 +8,7 @@ import {
   FileText,
   Timer,
 } from "lucide-react";
-import Modal from "../Modal";
+import Modal from "./Modal";
 
 export function LoanDetailsModal({ loan, isOpen, onClose }) {
   if (!loan) return null;
