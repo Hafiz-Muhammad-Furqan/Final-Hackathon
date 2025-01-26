@@ -1,17 +1,27 @@
 import React from "react";
+import { UserProvider } from "./context/UserContext";
+import { ToastContainer, Bounce } from "react-toastify";
 import AppRoutes from "./routes/AppRoutes";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/Navbar";
 
-const App = () => {
+function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-      <ToastContainer />
-    </AuthProvider>
+    <UserProvider>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Bounce}
+      />
+      <AppRoutes></AppRoutes>
+    </UserProvider>
   );
-};
+}
 
 export default App;

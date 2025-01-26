@@ -1,53 +1,53 @@
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 const ProtectedRouteWrapper = ({ children }) => {
-  const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [token] = useState(() => localStorage.getItem("token"));
-
-  const fetchProfile = async (url, token) => {
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 200) {
-        setUser(response.data);
-        setLoading(false);
-      }
-    } catch (error) {
-      localStorage.removeItem("token");
-      navigate("/login", { replace: true });
-      console.log(error.message);
-    }
-  };
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    if (!token) {
-      navigate("/login");
-    } else {
-      fetchProfile(`${API_BASE_URL}/auth/profile`, token);
-    }
-  }, [navigate, token]);
+    const getProfile = async () => {
+      const token = localStorage.getItem("token");
 
-  return (
-    <>
-      {loading ? (
-        <div className="h-[100dvh] w-full flex items-center justify-center">
-          <div className="loader"></div>
-        </div>
-      ) : (
-        children
-      )}
-    </>
-  );
+      if (!token) {
+        navigate("/", { replace: true });
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/user/profile`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setUser(response.data);
+      } catch (error) {
+        console.error(
+          "Error fetching profile:",
+          error?.response?.data?.message
+        );
+        navigate("/", { replace: true });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getProfile();
+  }, [navigate, setUser]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRouteWrapper;

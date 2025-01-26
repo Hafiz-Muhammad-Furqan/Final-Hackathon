@@ -1,18 +1,15 @@
 import express from "express";
 import {
-  register,
-  resetPassword,
-  loanRequest,
-  getLoanRequest,
+  registerUser,
+  loginUser,
   getProfile,
 } from "../controllers/userController.js";
 
+import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/reset-password", resetPassword);
-router.post("/loan-request", loanRequest);
-router.post("/get-loan-requests", getLoanRequest);
-router.get("/profile", getProfile);
+router.post("/signup", registerUser);
+router.post("/login", loginUser);
+router.get("/profile", authMiddleware, getProfile);
 
 export default router;

@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import connectDB from "./config/db.js";
+import connectDB from "./db/db.js";
 import userRoutes from "./routes/userRoutes.js";
+import loanRoutes from "./routes/loanRoutes.js";
 const app = express();
 
 dotenv.config();
@@ -14,7 +15,9 @@ const PORT = process.env.PORT || 4000;
 app.get("/", (req, res) => {
   res.send("Hello from server!");
 });
-app.use("/api/user", userRoutes);
+
+app.use("/user", userRoutes);
+app.use("/loan", loanRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
