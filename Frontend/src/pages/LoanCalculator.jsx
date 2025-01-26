@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const LoanCalculator = () => {
   const { setUser, user } = useAuth();
+  console.log(user);
   const [loading, setLoading] = useState(false);
   const categories = {
     Wedding: ["Venue", "Jewelry", "Clothing"],
@@ -88,8 +89,10 @@ const LoanCalculator = () => {
   };
 
   const loanRequest = async (userResponse) => {
+    console.log(userResponse._id);
+
     const loanRequestData = {
-      userId: userResponse?.data?.newUser._id || user._id,
+      userId: userResponse?.data?.newUser._id || userResponse?._id || user._id,
       category: selectedCategory,
       subcategory: selectedSubcategory,
       loanAmount,
