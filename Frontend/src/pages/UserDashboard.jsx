@@ -1,50 +1,72 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [loanRequests, setLoanRequests] = useState([]);
+  const { user, setUser } = useAuth();
 
   const userLoan = {
     amount: "200,000 PKR",
     startDate: "2025-02-10",
     status: "Pending",
   };
+  const navigate = useNavigate();
+  useEffect(() => {
+    const getProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const profileResponse = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/api/user/profile/`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setUser(profileResponse.data.user);
+          try {
+            const response = await axios.post(
+              `${import.meta.env.VITE_API_BASE_URL}/api/user/get-loan-requests`,
+              { userId: profileResponse.data.user._id }
+            );
+            setLoanRequests(response.data.loanRequests);
+          } catch (error) {
+            console.error("Error fetching loan requests:", error);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+    };
 
-  const paymentHistory = [
-    { date: "2025-03-10", amount: "20,000 PKR", lateFee: "0 PKR" },
-    { date: "2025-04-10", amount: "20,000 PKR", lateFee: "500 PKR" },
-    { date: "2025-05-10", amount: "20,000 PKR", lateFee: "0 PKR" },
-  ];
-
-  const appointmentDetails = {
-    token: "TOKEN-12345",
-    qrCode: "https://via.placeholder.com/150",
-    location: "Head Office, Karachi",
-  };
+    getProfile();
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
       <div className="w-64 bg-gray-800 p-5">
         <h2 className="text-xl font-semibold mb-6">Loan Dashboard</h2>
         <ul>
-          {["dashboard", "apply", "status", "payments", "profile"].map(
-            (tab) => (
-              <li
-                key={tab}
-                className={`p-3 cursor-pointer hover:bg-gray-700 rounded ${
-                  activeTab === tab ? "bg-blue-600" : ""
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </li>
-            )
-          )}
+          {["dashboard", "apply"].map((tab) => (
+            <li
+              key={tab}
+              className={`p-3 cursor-pointer hover:bg-gray-700 rounded ${
+                activeTab === tab ? "bg-blue-600" : ""
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </li>
+          ))}
         </ul>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-6">
+        {/* Dashboard */}
         {activeTab === "dashboard" && (
           <>
             <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
@@ -72,71 +94,49 @@ const UserDashboard = () => {
           </>
         )}
 
-        {activeTab === "status" && (
-          <>
-            <h1 className="text-3xl font-bold mb-4">Loan Status</h1>
-            <div className="bg-gray-800 p-4 rounded-lg shadow">
-              <p>
-                🔄 Current Status:{" "}
-                <strong className="text-yellow-400">{userLoan.status}</strong>
-              </p>
-              <p>
-                📆 Next EMI Due: <strong>2025-03-10</strong>
-              </p>
-            </div>
-          </>
-        )}
-
-        {activeTab === "payments" && (
-          <>
-            <h1 className="text-3xl font-bold mb-4">Payment History</h1>
-            <table className="w-full bg-gray-800 rounded-lg">
-              <thead>
-                <tr className="bg-gray-700">
-                  <th className="p-3">Date</th>
-                  <th className="p-3">Amount Paid</th>
-                  <th className="p-3">Late Fee</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paymentHistory.map((payment, index) => (
-                  <tr key={index} className="border-b border-gray-600">
-                    <td className="p-3">{payment.date}</td>
-                    <td className="p-3">{payment.amount}</td>
-                    <td className="p-3 text-red-400">{payment.lateFee}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        )}
-
-        {activeTab === "profile" && (
-          <>
-            <h1 className="text-3xl font-bold mb-4">Profile</h1>
-            <div className="bg-gray-800 p-4 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-2">Edit Profile</h2>
-              <input
-                type="text"
-                placeholder="CNIC"
-                className="w-full p-2 mb-3 bg-gray-700 rounded text-white"
-              />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                className="w-full p-2 mb-3 bg-gray-700 rounded text-white"
-              />
-              <button className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500">
-                Update Profile
-              </button>
-            </div>
-          </>
-        )}
-
         {activeTab === "apply" && (
           <>
             <h1 className="text-3xl font-bold mb-4">Apply for Loan</h1>
-            <p className="text-gray-400">Coming Soon...</p>
+            {loanRequests.length > 0 ? (
+              loanRequests.map((loanRequest, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800 p-4 rounded-lg shadow mb-6 flex items-start justify-center flex-col gap-2"
+                >
+                  <h2 className="text-xl font-semibold ">Loan Request</h2>
+                  <p>
+                    💰 Loan Amount: <strong>{loanRequest.loanAmount}</strong>
+                  </p>
+                  <p>
+                    📅 Loan Period:{" "}
+                    <strong>{loanRequest.loanPeriod}Years</strong>
+                  </p>
+                  <p>
+                    📌 Status:{" "}
+                    <strong
+                      className={
+                        loanRequest.status === "Pending"
+                          ? "text-yellow-400"
+                          : "text-green-400"
+                      }
+                    >
+                      {loanRequest.status}
+                    </strong>
+                  </p>
+
+                  <button
+                    className="p-2 rounded-lg bg-blue-900 cursor-pointer"
+                    onClick={() => navigate("/login")}
+                  >
+                    {loanRequest.status === "Pending"
+                      ? "Approve Loan Request"
+                      : "Loan Request Approved"}
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">No Loan Requests Found</p>
+            )}
           </>
         )}
       </div>

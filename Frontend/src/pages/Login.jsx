@@ -5,17 +5,22 @@ import { Link, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [cnic, setCnic] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // For handling form errors
+  const [error, setError] = useState("");
 
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email.trim() === "" || password.trim() === "") {
+    if (
+      cnic.trim() === "" ||
+      password.trim() === "" ||
+      newPassword.trim() === ""
+    ) {
       toast.error("All Fields are required");
       return;
     }
@@ -23,16 +28,16 @@ const Login = () => {
     setError("");
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/user/reset-password`,
         {
-          email,
+          cnic,
           password,
+          newPassword,
         }
       );
-      localStorage.setItem("token", response.data.token);
-      setUser(response.data);
+      setUser(response.data.user);
 
-      navigate("/");
+      navigate("/user-dashboard");
     } catch (error) {
       setError(
         error.response?.data?.message || "Login failed. Please try again."
@@ -51,19 +56,18 @@ const Login = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Field */}
           <div>
             <label
-              htmlFor="email"
+              htmlFor="cnic"
               className="block text-sm font-medium text-white"
             >
-              Email
+              Cnic
             </label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="number"
+              id="cnic"
+              value={cnic}
+              onChange={(e) => setCnic(e.target.value)}
               className="w-full mt-2 p-3 rounded-md bg-[#2a2a2a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your email"
               required
@@ -83,6 +87,23 @@ const Login = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full mt-2 p-3 rounded-md bg-[#2a2a2a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="New Password"
+              className="block text-sm font-medium text-white"
+            >
+              New Password
+            </label>
+            <input
+              type="password"
+              id="new Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               className="w-full mt-2 p-3 rounded-md bg-[#2a2a2a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
               required

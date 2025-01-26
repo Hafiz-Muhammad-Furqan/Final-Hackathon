@@ -15,7 +15,7 @@ const Home = () => {
           </h2>
           <Link
             to="/loan-calculator"
-            className="text-xl font-semibold text-white border-white border p-2 rounded-lg"
+            className="text-xl font-semibold text-white bg-slate-800 border-black border p-2 rounded-lg"
           >
             Apply for loan
           </Link>
